@@ -9,12 +9,6 @@ class Db {
         $this->quick_connect($MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB, $MYSQL_HOST);
         $this->query("SET NAMES '".$MYSQL_CHARSET."'");
 
-        // set default names
-        /*if (version_compare(mysql_get_server_info(), "4.1.0") == '-1') {
-            if (!$MYSQL_CHARSET) $MYSQL_CHARSET = 'utf';
-            $this->query("SET NAMES '".$MYSQL_CHARSET."'");
-            $this->query("SET sql_mode=''");
-        }*/
     }
 
     public function quick_connect($dbuser='', $dbpassword='', $dbname='', $dbhost='localhost') {
