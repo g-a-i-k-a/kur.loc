@@ -1,14 +1,26 @@
 <?php
 
 class Db {
+		
 
-    public function __construct() {
+    private function __construct() {
     		$ROOT_FOLDER = join(strstr(__FILE__, "/") ? "/" : "\\", array_slice(preg_split("/[\/\\\]+/", __FILE__), 0, -2)).( strstr(__FILE__, "/") ? "/" : "\\" );
 				include($ROOT_FOLDER."/config.php");
 
         $this->quick_connect($MYSQL_USER, $MYSQL_PASSWORD, $MYSQL_DB, $MYSQL_HOST);
         $this->query("SET NAMES '".$MYSQL_CHARSET."'");
-
+        
+    }
+    public static function get_object() {
+        // call as static
+        static $db;
+        // check inited object
+        if (!isset($db)) {
+            // init object
+            $db = new self();
+        }
+        // return object
+        return is_object($db) ? $db : false;
     }
 
     public function quick_connect($dbuser='', $dbpassword='', $dbname='', $dbhost='localhost') {
@@ -53,7 +65,7 @@ class Db {
      *  Perform mySQL query and try to detirmin result value
      */
 
-    public function query($query) {
+    public function query($query, $output = OBJECT) {
 
         // For reg expressions
         $query = trim($query);
@@ -66,6 +78,7 @@ class Db {
         // Perform the query via std mysql_query function..
         $this->result = @mysql_query($query, $this->dbh);
         $this->num_queries++;
+        $this->last_result = array();
 
         // Query was an insert, delete, update, replace
         if (preg_match("/^(insert|delete|update|replace)\s+/i", $query)) {
@@ -90,11 +103,17 @@ class Db {
 
             // Store Query Results
             $num_rows = 0;
-
-            while ($row = @mysql_fetch_object($this->result)) {
-                // Store relults as an objects within main array
-                $this->last_result[$num_rows] = $row;
-                $num_rows++;
+            if ($output == ARRAY_N) {
+                while ($row = mysql_fetch_row($this->result)) {
+                    $this->last_result[$num_rows] = $row;
+                    $num_rows++;
+                }
+            } else {
+                while ($row = @mysql_fetch_object($this->result)) {
+                    // Store relults as an objects within main array
+                    $this->last_result[$num_rows] = $row;
+                    $num_rows++;
+                }
             }
 
             @mysql_free_result($this->result);
@@ -187,7 +206,9 @@ class Db {
         // Send back array of objects. Each row is an object
         if ($output == OBJECT) {
             return $this->last_result;
-        } elseif ($output == ARRAY_A || $output == ARRAY_N ) {
+        } elseif ($output == ARRAY_N) {
+            return $this->last_result;
+        } elseif ($output == ARRAY_A/* || $output == ARRAY_N */) {
             if ($this->last_result) {
                 $i = 0;
                 foreach ($this->last_result as $row) {
@@ -206,6 +227,7 @@ class Db {
                 return null;
             }
         }
+
     }
 }
 

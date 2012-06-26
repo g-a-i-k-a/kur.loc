@@ -16,7 +16,7 @@ $events = $db->get_results("SELECT `e`.`id`, `e`.`date`, `e`.`name`, `e`.`descri
  													`p`.`name` as `place` 
  													FROM `event` as `e`
  													LEFT JOIN `place` as `p` ON `p`.`id` = `e`.`place_id`
- 													WHERE `e`.`type_id` = 3", ARRAY_A);
+ 													WHERE `e`.`type_id` = 3  AND `e`.`date` > NOW()", ARRAY_A);
 if(!empty($events)) {
  foreach ($events as $event) {
  	html_list_event($event);

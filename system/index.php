@@ -3,7 +3,7 @@ $ROOT_FOLDER = join(strstr(__FILE__, "/") ? "/" : "\\", array_slice(preg_split("
 include($ROOT_FOLDER."/config.php");
 
 require_once("db.php");
-$db = new Db();
+$db = Db::get_object();
 
 require_once("function.php");
 

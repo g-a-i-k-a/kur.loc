@@ -1,5 +1,151 @@
 <?php
 
+function html_order() {
+	require_once("db.php");
+	$db = Db::get_object();
+
+?>
+		<div class="hr clearfix">&nbsp;</div>
+		<div class="catagory_1 clearfix">
+<?
+$user_id = (is_admin() ? 0 : get_user_data());
+
+$data_arr = get_order_data();
+
+if ($data_arr) {
+	foreach ($data_arr as $data) {
+	  html_order_row($data);
+	}
+}
+
+
+		
+?>		
+		</div>
+<?
+
+}
+
+
+function get_order_data($user_id = 0) {
+	require_once("db.php");
+	$db = Db::get_object();
+	$q_where = ($user_id ? "WHERE `user_id`= ".$user_id : "");
+
+	$order_data = $db->get_results("SELECT `ticket` FROM `order` ".$q_where, ARRAY_A);
+
+	if (empty($order_data)) return false;
+	else {
+		foreach ($order_data as $k => $v) {
+			$order_data[$k] = unserialize($order_data[$k]['ticket']);
+		}
+	}
+							
+	return $order_data;														
+}
+
+
+
+function html_order_row($data) {
+?>
+<div class="grid_3 textright" >
+	<span class="meta"><?=$data['edate']?></span>
+	<h4 class="title "><?=$data['ename']?></h4>
+	<div class="hr clearfix dotted">&nbsp;</div>
+</div>
+<div class="grid_9">
+	<dl class="history">
+  	<dt>Билет:</dt>
+  	<dt>Цена:</dt>
+   	<dd><?=($data['price'] ? $data['price']." руб." : "бесплатно")?></dd>
+		<div class="clearfix"></div>
+   	<dt>Статус:</dt>
+   	<dd><?=$data['status']?></dd>
+	</dl>
+</div>
+<div class="clearfix">&nbsp;</div>
+<?
+}
+
+function html_ticket_row($data){
+
+}
+
+
+function html_profile() {
+?>
+		<div class="hr clearfix">&nbsp;</div>
+		<div class="catagory_1 clearfix">
+<?
+if (is_admin()) {
+	$data_arr = get_user_data_all();
+	if (empty($data_arr)) {
+	return false;
+	}
+	foreach ($data_arr as $data) {
+	  html_profile_row($data);
+	}
+}
+
+else {
+	$data = get_user_data();
+	html_profile_row($data);
+}
+		
+?>		
+		</div>
+<?
+
+}
+
+function html_profile_row ($data) {
+?>
+<div class="grid_3 textright" >
+	<span class="meta"><?=$data['login']?></span>
+	<h4 class="title "><?=$data['fio']?></h4>
+	<div class="hr clearfix dotted">&nbsp;</div>
+</div>
+<div class="grid_9">
+	<p><?=$data['address']?></p>
+</div>
+<div class="clearfix">&nbsp;</div>
+<?
+}
+
+function is_admin() {
+	$data = get_user_data();
+	if($data['role'])
+		return true;
+	else return false;	
+}
+
+function get_user_data($item = "") {
+	require_once("db.php");
+	$db = Db::get_object();
+	$data = $db->get_row("SELECT `id`,`role`,`login`,`fio`, `address` FROM user WHERE MD5(`login`)='".$_COOKIE['auth_code']."'", ARRAY_A); 
+	if (array_key_exists($item, $data)){
+		return $data[$item];
+	}
+	else {
+		return $data;
+	}
+}
+
+function get_user_data_all() {
+	require_once("db.php");
+	$db = Db::get_object();
+	return $db->get_results("SELECT `id`,`role`,`login`,`fio`, `address` FROM user", ARRAY_A);
+}
+
+function html_profile_nav(){
+?>
+<ul id="profile_nav">
+		<li><a href="/profile/" <? if($_SERVER['REQUEST_URI'] == '/profile/') echo "class='current'";?>>Профиль</a></li>
+		<li><a href="/order/" <? if($_SERVER['REQUEST_URI'] == '/order/') echo "class='current'";?>>Заказы</a></li>
+</ul>
+<?
+}
+
 function html_list_event($event) {
 ?>
 			<div class="post">
@@ -30,11 +176,8 @@ function html_event($event) {
 function html_ticket($ticket){
 ?> 
 <tr>
-	<td><?=$ticket['sector']?></td>
-	<td><?=$ticket['row']?></td>
-	<td><?=$ticket['seat']?></td>
 	<td><?=$ticket['price']?></td>
-	<td><input type="checkbox" name="<?=$ticket['id']?>"></td>
+	<td><input type="checkbox" name="ticket<?=$ticket['id']?>" value="<?=$ticket['id']?>"></td>
 </tr>
 <?
 

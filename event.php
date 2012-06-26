@@ -14,18 +14,16 @@ $event_data = $db->get_row("SELECT `e`.`date`, `e`.`name`, `e`.`description`,
 																
 html_event($event_data);
 
-$tickets = $db->get_results("SELECT `t`.`id`, `t`.`sector`, `t`.`row`,`t`.`seat`, `t`.`price`
-														FROM `ticket_".$event_id."` as `t`
-														WHERE `t`.`status` = 0", ARRAY_A);
+$tickets = $db->get_results("SELECT `t`.`id`, `t`.`price`
+														FROM `ticket` as `t`
+														WHERE `t`.`status` = 0 AND `t`.`event_id` = ".$event_id, ARRAY_A);
 
 if (!empty($tickets)) {
 	?>
-	<form action="" method="post">
+	<script type="text/javascript"  src="/template/js/order.js"></script>
+	<form action="/order/add.php" method="post" id="order_form">
 	<table width="100%" cellpadding="0" cellspacing="0">
 		<tr>
-			<th>Сектор</th>
-			<th>Ряд</th>
-			<th>Место</th>
 			<th>Цена</th>
 			<th>Выбрать</th>
 		</tr>
@@ -36,11 +34,22 @@ if (!empty($tickets)) {
 	?>
 	</table>
 	<div class="hr clearfix">&nbsp;</div>
-	<p class="clearfix"><input type="submit" class="button right" value="Купить билет"/></p>
+	<p id="check_error" class="error">Выберите хоть 1 билет для заказа</p>
+	<input type="hidden" name="event" value="<?=$event_id?>"/>
+	<p id="order_fail" class="error">Произошла ошибка при добавлении заказа. Попробуйте позже.</p>
+	<p class="clearfix"><input type="submit" class="button right" id="order_send" value="Купить билет"/></p>
 	</form>
+	<p id="order_success" style="display: none;">Билеты заказаны и ожидают подтверждения. Вы можете следить за статусом заказа на <a href="/order/">этой странице</a>.</p>
+
 	<?
 }
 
+else {
+	?>
+		<p>К сожалению, на данный момент доступных билетов нет.</p>
+
+	<?
+}
 
 
 include_once($FOOTER);

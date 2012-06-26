@@ -4,10 +4,17 @@ include($ROOT_FOLDER."/config.php");
 require_once($ROOT_FOLDER."/system/index.php");
 	
 include_once($HEADER);
+?>
+
+<div class="container_12">
+<?
+html_profile_nav();
+html_profile();
+?>
+
+</div>
 
 
-
-
-
+<?
 include_once($FOOTER);
 ?>
