@@ -144,8 +144,8 @@ DESCRIPTION: A premium business and portfolio theme.
 
 	dl.history							{margin:10px 10px;}
 	dl.history							{margin:0 0 10px 0; zoom:1}
-	dl.history dt						{width:50px; float:left; font-weight:bold;}
-	dl.history dd						{width:250px; float:left; padding:0; margin-bottom:20px;}
+	dl.history dt						{float:left; font-weight:bold;}
+	dl.history dd						{float:left; padding:0 5px; margin-bottom:20px;}
 	
 /* Common Scroller Styles */
 
@@ -277,3 +277,6 @@ DESCRIPTION: A premium business and portfolio theme.
 	ul#profile_nav li a					{font-family:arial, sans-serif !important; display:block; padding:12px 0; text-decoration:none; color:#000000; font-size:14px; font-weight:bold;}
 	ul#profile_nav li a:hover {color: red}
 	ul#profile_nav li a.current			{color: red}
+	
+	
+	#order_cancel {padding-bottom: 10px;}

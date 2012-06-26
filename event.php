@@ -14,16 +14,17 @@ $event_data = $db->get_row("SELECT `e`.`date`, `e`.`name`, `e`.`description`,
 																
 html_event($event_data);
 
-$tickets = $db->get_results("SELECT `t`.`id`, `t`.`price`
+$tickets = $db->get_results("SELECT `t`.`id`, `t`.`seat`, `t`.`price`
 														FROM `ticket` as `t`
 														WHERE `t`.`status` = 0 AND `t`.`event_id` = ".$event_id, ARRAY_A);
 
-if (!empty($tickets)) {
+if (!empty($tickets) && get_user_data()) {
 	?>
 	<script type="text/javascript"  src="/template/js/order.js"></script>
 	<form action="/order/add.php" method="post" id="order_form">
 	<table width="100%" cellpadding="0" cellspacing="0">
 		<tr>
+			<th>Место</th>
 			<th>Цена</th>
 			<th>Выбрать</th>
 		</tr>
@@ -45,10 +46,19 @@ if (!empty($tickets)) {
 }
 
 else {
+if (get_user_data()) {
 	?>
 		<p>К сожалению, на данный момент доступных билетов нет.</p>
 
 	<?
+	}
+	else {
+	?>
+		<p>К сожалению, покупка билетов доступна только авторизованным пользователям.</p>
+
+	<?
+
+	}
 }
 
 

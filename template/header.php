@@ -24,7 +24,7 @@
 	
 	<? if ($_COOKIE['auth_code']) { ?>
 	<div id="profile_link">
-		<a href="/profile/">Личный кабинет</a>
+		<a href="/profile/">Личный кабинет</a> | <a href="/profile/logout.php">Выйти</a>
 	</div>
 	<? } 
 	
@@ -46,7 +46,7 @@
 		<p id='auth_fail' class='error'>Такого пользователя не существует</p>
 	</form> 
 	<div id="profile_link" style="display: none;">
-		<a href="/profile/">Личный кабинет</a>
+		<a href="/profile/">Личный кабинет</a> | <a href="/profile/logout.php">Выйти</a>
 	</div>
 
 	<? } ?>

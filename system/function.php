@@ -30,18 +30,44 @@ if ($data_arr) {
 function get_order_data($user_id = 0) {
 	require_once("db.php");
 	$db = Db::get_object();
-	$q_where = ($user_id ? "WHERE `user_id`= ".$user_id : "");
+	$q_where = ($user_id ? "WHERE `o`.`user_id`= ".$user_id : "");
 
-	$order_data = $db->get_results("SELECT `ticket` FROM `order` ".$q_where, ARRAY_A);
-
+	$order_data = $db->get_results("SELECT `o`.`id`, `o`.`ticket`, `os`.`name` as `status`, `o`.`status_id`
+																	FROM `order` as `o`
+																	LEFT JOIN `order_status` AS `os` ON `os`.`id` = `o`.`status_id`
+																	".$q_where, ARRAY_A);
+																	
 	if (empty($order_data)) return false;
 	else {
 		foreach ($order_data as $k => $v) {
-			$order_data[$k] = unserialize($order_data[$k]['ticket']);
+			$data[$k] = unserialize($order_data[$k]['ticket']);
+			//$data[$k]['status'] = $order_data[$k]['status'];
+			//var_dump($data);
+			$event_id = $data[$k]['event'];
+			$ticket_arr = $data[$k]['tickets'];
+			
+			$temp = $db->get_row("SELECT `e`.`name` as `ename`, `e`.`date` as `edate`
+												FROM `event` as `e`
+												WHERE `e`.`id` = ".$event_id."
+												", ARRAY_A);
+			
+			$res[$k]['ename'] =  $temp['ename'];
+			$res[$k]['edate'] =  $temp['edate'];	
+																				
+			$temp2 = $db->get_results("SELECT `t`.`price`, `t`.`status` as `tstatus`, `t`.`seat`
+												FROM `ticket` as `t`
+												WHERE `t`.`id` IN (".join(", ", $ticket_arr).")
+												", ARRAY_A);
+												
+			$res[$k]['tickets'] = $temp2;
+			$res[$k]['ostatus'] = $order_data[$k]['status'];
+			$res[$k]['ostatus_id'] = $order_data[$k]['status_id'];
+			$res[$k]['order'] = $order_data[$k]['id'];
 		}
-	}
+	} 
+	//var_dump($res);
 							
-	return $order_data;														
+	return $res;														
 }
 
 
@@ -51,24 +77,47 @@ function html_order_row($data) {
 <div class="grid_3 textright" >
 	<span class="meta"><?=$data['edate']?></span>
 	<h4 class="title "><?=$data['ename']?></h4>
+	 <p>Статус заказа: <br><span class="meta"><?=$data['ostatus']?></span></p>
 	<div class="hr clearfix dotted">&nbsp;</div>
+	<?
+	if ($data['ostatus_id']<6) {
+	?>
+	<script type="text/javascript"  src="/template/js/order_cancel.js"></script>
+	<form method="post" action="" id="order_cancel">
+		<input type="hidden" name="order" value="<?= $data['order']?>"/>
+		<input type='submit' class="button" id="order_cancel_send" value='Отменить заказ' />
+	</form>
+	<p id='order_cancel_success' style="display: none;">Ваш заказ отменен.</p>
+	<p id='order_cancel_fail' style="display: none; color: red;">Возникли проблемы отмене заказа. Попробуйте позже.</p>
+	<div class="hr clearfix dotted">&nbsp;</div>
+	<?
+	}
+	?>
 </div>
+
 <div class="grid_9">
-	<dl class="history">
-  	<dt>Билет:</dt>
-  	<dt>Цена:</dt>
-   	<dd><?=($data['price'] ? $data['price']." руб." : "бесплатно")?></dd>
-		<div class="clearfix"></div>
-   	<dt>Статус:</dt>
-   	<dd><?=$data['status']?></dd>
-	</dl>
+	Билеты:
+<?
+foreach ($data['tickets'] as $ticket) {
+	html_ticket_row($ticket);
+}
+?>
 </div>
 <div class="clearfix">&nbsp;</div>
+
 <?
 }
 
 function html_ticket_row($data){
-
+?>
+	<dl class="history">
+  	<dt>Место:</dt>
+   	<dd><?=$data['seat']?></dd>
+		<dt>Цена:</dt>
+   	<dd><?=($data['price'] ? $data['price']." руб." : "бесплатно")?></dd>
+	</dl>
+	<div class="clearfix"></div>
+<?
 }
 
 
@@ -123,7 +172,7 @@ function get_user_data($item = "") {
 	require_once("db.php");
 	$db = Db::get_object();
 	$data = $db->get_row("SELECT `id`,`role`,`login`,`fio`, `address` FROM user WHERE MD5(`login`)='".$_COOKIE['auth_code']."'", ARRAY_A); 
-	if (array_key_exists($item, $data)){
+	if ($item && array_key_exists($item, $data)){
 		return $data[$item];
 	}
 	else {
@@ -176,6 +225,7 @@ function html_event($event) {
 function html_ticket($ticket){
 ?> 
 <tr>
+	<td><?=$ticket['seat']?></td>
 	<td><?=$ticket['price']?></td>
 	<td><input type="checkbox" name="ticket<?=$ticket['id']?>" value="<?=$ticket['id']?>"></td>
 </tr>
