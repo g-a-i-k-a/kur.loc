@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Хост: localhost
--- Время создания: Июн 26 2012 г., 23:48
+-- Время создания: Июн 27 2012 г., 02:25
 -- Версия сервера: 5.1.51
 -- Версия PHP: 5.3.8
 
@@ -74,14 +74,47 @@ CREATE TABLE IF NOT EXISTS `order` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `ticket` text NOT NULL,
+  `status_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_order_user1` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=11 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 --
 -- Дамп данных таблицы `order`
 --
 
+INSERT INTO `order` (`id`, `user_id`, `ticket`, `status_id`) VALUES
+(11, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', 6),
+(12, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:1:{i:0;s:1:"2";}}', 6),
+(13, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', 6),
+(14, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:2:{i:0;s:1:"1";i:1;s:1:"2";}}', 6),
+(15, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:1:{i:0;s:1:"1";}}', 1),
+(16, 6, 'a:2:{s:5:"event";s:1:"1";s:7:"tickets";a:1:{i:0;s:1:"2";}}', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `order_status`
+--
+
+CREATE TABLE IF NOT EXISTS `order_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
+
+--
+-- Дамп данных таблицы `order_status`
+--
+
+INSERT INTO `order_status` (`id`, `name`) VALUES
+(1, 'Ожидание ответа от владельца мероприятия'),
+(2, 'Отказано владельцем мероприятия'),
+(3, 'Подтверждено владельцем мероприятия'),
+(4, 'Отказано в доставке'),
+(5, 'В процессе доставки'),
+(6, 'Заказ отменен пользователем'),
+(7, 'Закрыт');
 
 -- --------------------------------------------------------
 
@@ -112,9 +145,7 @@ INSERT INTO `place` (`id`, `name`, `address`) VALUES
 
 CREATE TABLE IF NOT EXISTS `ticket` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sector` varchar(255) DEFAULT NULL,
-  `row` int(11) DEFAULT NULL,
-  `seat` int(11) DEFAULT NULL,
+  `seat` int(11) NOT NULL,
   `price` float DEFAULT NULL,
   `status` int(11) DEFAULT NULL,
   `event_id` int(11) NOT NULL,
@@ -125,9 +156,9 @@ CREATE TABLE IF NOT EXISTS `ticket` (
 -- Дамп данных таблицы `ticket`
 --
 
-INSERT INTO `ticket` (`id`, `sector`, `row`, `seat`, `price`, `status`, `event_id`) VALUES
-(1, 'Партер', 1, 1, 10000, 0, 1),
-(2, 'Партер', 1, 2, 9999, 0, 1);
+INSERT INTO `ticket` (`id`, `seat`, `price`, `status`, `event_id`) VALUES
+(1, 1, 10000, 1, 1),
+(2, 2, 9999, 1, 1);
 
 -- --------------------------------------------------------
 
